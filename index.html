@@ -384,7 +384,10 @@
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
     }
-    // --- END SKETCH CODE ---
+    document.getElementById('saveBtn').addEventListener('click', () => {
+  saveState();
+  alert('State saved!');
+});
   </script>
 </body>
 </html>
