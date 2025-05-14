@@ -20,8 +20,6 @@
 <body>
   <button id="saveBtn">Save Now</button>
   <script>
-    // Your entire p5.js sketch code goes here!
-    // (Paste everything from your previous message, starting from "// Constants" down to the end)
     // --- BEGIN SKETCH CODE ---
     // Constants
     let BASE_X = 190;
@@ -48,12 +46,28 @@
     let img1, img2;
     let times = [];
 
+    function loadState() {
+      let stateStr = localStorage.getItem('rectangle_state');
+      if (stateStr) {
+        let stateObj = JSON.parse(stateStr);
+        rectangles = [];
+        stateObj.rectangles.forEach(r => {
+          let rect = new Rectangle(r.x, r.y, r.width, r.height);
+          rect.text = r.text;
+          rectangles.push(rect);
+        });
+      }
+    }
+
     function setup() {
       createCanvas(windowWidth, windowHeight);
       textFont('Arial', 20);
       img1 = loadImage('traffic.png');
       img2 = loadImage('weather.png');
-      initializeRectangles();
+      loadState(); // Load saved rectangles if any
+      if (rectangles.length === 0) {
+        initializeRectangles();
+      }
       initializeAddButton();
     }
 
@@ -154,18 +168,15 @@
     }
 
     function drawTimeline() {
-      // background strip
       fill(255);
       stroke(0);
       strokeWeight(2);
       rect(0, 750, width, 60);
 
-      // highlight up to current time
       let highlightX = 150 + ((hour() - 8) + minute() / 60.0) * 420;
       fill(240, 225, 153);
       rect(0, 750, highlightX, 60);
 
-      // ticks and labels
       times = [];
       for (let h = 8; h < 13; h++) {
         for (let m = 0; m < 60; m++) {
@@ -198,7 +209,6 @@
 
     function mousePressed() {
       dragStart = createVector(mouseX, mouseY);
-      // Add button
       if (addButton.contains(mouseX, mouseY)) {
         let nr = new Rectangle(mouseX - RECT_W / 2, mouseY - RECT_H / 2, RECT_W, RECT_H);
         rectangles.push(nr);
@@ -206,18 +216,15 @@
         saveState();
         return;
       }
-      // Text input area
       if (mouseX < 410 && mouseY < 110) {
         isTyping = true;
         return;
       }
-      // Toggle state (example condition)
       if (mouseX < -280 && mouseY > -15) {
         state = 1;
       } else {
         state = 0;
       }
-      // Rectangle interactions
       for (let r of rectangles) {
         if (r.contains(mouseX, mouseY)) {
           if (r.isOverResizeHandle(mouseX, mouseY)) {
@@ -232,7 +239,6 @@
           return;
         }
       }
-      // Deselect
       deselectCurrent();
       isTyping = false;
     }
@@ -305,7 +311,6 @@
       localStorage.setItem('rectangle_state', JSON.stringify(stateObj));
     }
 
-    // Rectangle class
     class Rectangle {
       constructor(x, y, w, h) {
         this.x = x;
@@ -384,10 +389,12 @@
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
     }
+
     document.getElementById('saveBtn').addEventListener('click', () => {
-  saveState();
-  alert('State saved!');
-});
+      saveState();
+      alert('State saved!');
+    });
+    // --- END SKETCH CODE ---
   </script>
 </body>
 </html>
